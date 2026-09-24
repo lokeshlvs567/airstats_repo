@@ -1,0 +1,81 @@
+models:
+  - name: silver_airports
+    description: "Silver layer table containing standardized airport facility attributes, geographic coordinates, and regional codes."
+    columns:
+      - name: airport_ident
+        description: "Unique alphanumeric identifier for the airport or aviation facility."
+        data_tests:
+          - unique
+          - not_null
+      - name: airport_type
+        description: "Classification of the facility type"
+        data_tests:
+          - accepted_values:
+              arguments: 
+                values: ['small_airport', 'heliport', 'closed', 'seaplane_base','balloonport','medium_airport','large_airport']   
+      - name: airport_name
+        description: "Official name of the airport, heliport or airfield"
+        data_tests:
+          - not_null 
+      - name: airport_lat
+        description: "Geographic latitude coordinate of the airport in decimal degrees"
+        data_tests:
+          - not_null  
+      - name: airport_long
+        description: "Geographic longiude coordinate of the airport in decimal degrees"
+        data_tests:
+          - not_null 
+      - name: iso_country
+        data_tests:
+          - not_null    
+      - name: iso_region
+        data_tests:
+          - not_null 
+          - dbt_expectations.expect_column_value_lengths_to_be_between: 
+              min_value: 4
+              max_value: 7
+
+  - name: silver_airport_comments
+    columns:
+      - name: comment_id
+        description: '{{ doc("airport_comments_dsc") }}'
+        data_tests:
+          - unique
+          - not_null 
+      - name: airport_ident
+        description: '{{ doc("airport_comments_dsc") }}'
+        data_tests:
+          - not_null
+      - name: member_nickname
+        description: '{{ doc("airport_comments_dsc") }}'
+        data_tests:
+          - not_null      
+      - name: comment_body
+        description: '{{ doc("airport_comments_dsc") }}'
+        data_tests:
+          - not_null 
+
+  - name: silver_runways
+    columns:
+      - name: runway_id
+        data_tests:
+          - unique
+          - not_null 
+      - name: airport_ident
+        data_tests:
+          - not_null
+          - relationships:
+              arguments: 
+                to: ref('silver_airports')
+                field: airport_ident 
+                config:
+                  severity: warn
+      - name: runway_lighted  
+        tests:
+          - dbt_expectations.expect_column_values_to_be_between:    
+              min_value: 0  
+              max_value: 1 
+      - name: runway_lighted 
+        tests:
+          - dbt_expectations.expect_column_values_to_be_of_type:
+              column_type: number   
