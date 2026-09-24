@@ -1,4 +1,4 @@
-{% docs airport_comments_dsc %}
+{% docs airport_overview %}
 
 The three silver layer tables follow a star schema structure linked together by the core key airport_ident.
 1. Silver_airports - Store the master record for each aviation facility, including geographic coordinates, airport classification, 
